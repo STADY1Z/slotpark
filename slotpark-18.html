@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Slotpark</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Bebas+Neue&display=swap');
+:root {
+  --bg:#1a0533;--card:#2d0d5a;--card2:#3a1070;--gold:#FFD700;--gold2:#FFA500;
+  --green:#00D46A;--red:#FF4757;--purple:#9B59FF;--blue:#00B4FF;--pink:#FF2D78;
+  --text:#ffffff;--muted:#9980BB;--bar:#120228;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);
+  display:flex;flex-direction:column;max-width:480px;margin:0 auto;
+  box-shadow:0 0 60px rgba(0,0,0,.8)}
+
+/* TOP BAR */
+.topbar{background:linear-gradient(180deg,#0d0120,#1a0435);padding:10px 12px 8px;
+  display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(155,89,255,.25);
+  flex-shrink:0;position:relative;z-index:10}
+.logo-sm{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:2px;
+  background:linear-gradient(135deg,#FFD700,#FFA500);-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;filter:drop-shadow(0 0 8px rgba(255,215,0,.5));flex-shrink:0}
+.coins-pill{display:flex;align-items:center;gap:5px;
+  background:linear-gradient(135deg,#3d1a00,#6b2e00);border:1px solid var(--gold2);
+  border-radius:20px;padding:4px 10px 4px 6px;font-weight:800;font-size:.85rem;color:var(--gold);flex:1}
+.xp-area{text-align:right;min-width:80px}
+.xp-label{font-size:.6rem;color:var(--muted);letter-spacing:1px}
+.xp-bar-wrap{background:rgba(255,255,255,.1);border-radius:4px;height:6px;margin-top:2px}
+.xp-bar{height:6px;border-radius:4px;background:linear-gradient(90deg,#9B59FF,#00B4FF);transition:width .5s}
+.lv-badge{background:linear-gradient(135deg,var(--purple),#5500BB);border:2px solid rgba(255,255,255,.3);
+  border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;font-weight:900;flex-shrink:0}
+
+/* BONUS ROW */
+.bonus-row{background:linear-gradient(90deg,#2d0060,#1a0040);display:flex;gap:8px;
+  padding:8px 12px;border-bottom:1px solid rgba(155,89,255,.15);flex-shrink:0;overflow-x:auto}
+.bonus-btn{display:flex;align-items:center;gap:5px;background:linear-gradient(135deg,#3a006e,#55009e);
+  border:1px solid rgba(155,89,255,.4);border-radius:20px;padding:5px 12px;cursor:pointer;
+  white-space:nowrap;font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:700;color:var(--text);
+  transition:transform .15s,box-shadow .15s;flex-shrink:0}
+.bonus-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(155,89,255,.4)}
+.bonus-btn.ready{border-color:var(--gold);color:var(--gold);animation:pulse-gold 2s infinite}
+@keyframes pulse-gold{0%,100%{box-shadow:0 0 0 0 rgba(255,215,0,.4)}50%{box-shadow:0 0 0 6px rgba(255,215,0,0)}}
+
+/* SCREENS */
+.screen{display:none;flex:1;overflow-y:auto;flex-direction:column}
+.screen.active{display:flex}
+.inner-screen{padding:12px 12px 80px;overflow-y:auto;flex:1}
+.inner-screen::-webkit-scrollbar{width:0}
+.screen-title{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:3px;
+  color:var(--gold);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid rgba(155,89,255,.2)}
+
+/* LOBBY */
+.lobby{padding:10px 10px 80px}
+.lobby::-webkit-scrollbar{width:0}
+.section-hd{display:flex;align-items:center;justify-content:space-between;margin:10px 2px 8px}
+.section-hd h2{font-size:.8rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.section-hd .see-all{font-size:.7rem;color:var(--purple);font-weight:700;cursor:pointer}
+
+.featured-banner{border-radius:16px;overflow:hidden;
+  background:linear-gradient(135deg,#4a00b4,#8B003E,#1a0533);
+  padding:20px 18px 16px;position:relative;margin-bottom:10px;
+  border:1px solid rgba(255,255,255,.1);cursor:pointer}
+.featured-banner::before{content:'🔥 FEATURED';position:absolute;top:10px;right:10px;
+  background:var(--red);border-radius:4px;font-size:.6rem;font-weight:800;letter-spacing:1px;padding:2px 7px}
+.featured-banner h3{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:3px;color:var(--gold)}
+.featured-banner p{font-size:.75rem;color:rgba(255,255,255,.7);margin:.3rem 0 .8rem}
+.featured-big-syms{font-size:2.2rem;letter-spacing:4px}
+.play-now-btn{display:inline-block;margin-top:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#000;font-weight:900;font-size:.8rem;letter-spacing:1px;border-radius:10px;
+  padding:8px 20px;border:none;cursor:pointer;text-transform:uppercase}
+
+.jackpot-bar{background:linear-gradient(90deg,#4a0090,#8b0040,#4a0090);border-radius:12px;
+  padding:10px 14px;display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:10px;border:1px solid rgba(255,215,0,.25)}
+.jk-left{font-size:.65rem;letter-spacing:2px;color:rgba(255,255,255,.6);text-transform:uppercase}
+.jk-amount{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:2px;
+  color:var(--gold);filter:drop-shadow(0 0 6px rgba(255,215,0,.6))}
+
+.piggy-card{background:linear-gradient(135deg,#5a003a,#3a0060);border-radius:16px;padding:14px;
+  border:1px solid rgba(255,45,120,.3);display:flex;align-items:center;gap:12px;
+  margin-bottom:10px;cursor:pointer}
+.piggy-icon{font-size:2.8rem;flex-shrink:0}
+.piggy-info{flex:1}
+.piggy-title{font-weight:800;font-size:.85rem}
+.piggy-sub{font-size:.68rem;color:rgba(255,255,255,.6);margin-top:2px}
+.piggy-bar-wrap{background:rgba(0,0,0,.3);border-radius:4px;height:8px;margin-top:6px}
+.piggy-bar{height:8px;border-radius:4px;background:linear-gradient(90deg,var(--pink),var(--gold));transition:width .5s}
+.piggy-pct{font-size:.6rem;color:var(--muted);margin-top:2px}
+
+.game-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.game-card{background:var(--card);border-radius:12px;overflow:hidden;
+  border:1px solid rgba(155,89,255,.2);cursor:pointer;transition:transform .15s,box-shadow .15s;position:relative}
+.game-card:hover{transform:scale(1.03);box-shadow:0 8px 20px rgba(0,0,0,.5)}
+.game-thumb{width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  font-size:2.4rem;flex-direction:column;gap:2px;position:relative}
+.game-thumb .syms{font-size:1.5rem}
+.game-thumb .game-tag{position:absolute;top:5px;left:5px;font-size:.5rem;font-weight:800;
+  letter-spacing:1px;border-radius:4px;padding:1px 5px;text-transform:uppercase}
+.tag-new{background:#FF4757}.tag-hot{background:#FF6B00}
+.tag-vip{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000}
+.game-info{padding:5px 6px 7px}
+.game-name{font-size:.68rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.game-stars{font-size:.55rem;color:var(--gold)}
+.fav-star{position:absolute;bottom:4px;right:6px;font-size:1rem;cursor:pointer;opacity:.5}
+
+/* SLOT SCREEN */
+.slot-screen{background:linear-gradient(180deg,#0d0120,#1a0435);flex:1;display:flex;flex-direction:column}
+.slot-header{display:flex;align-items:center;gap:10px;padding:10px 12px 8px;border-bottom:1px solid rgba(155,89,255,.2)}
+.back-btn{background:rgba(255,255,255,.08);border:none;border-radius:8px;color:#fff;
+  width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;cursor:pointer}
+.slot-title{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;flex:1}
+.slot-balance{font-size:.7rem;text-align:right}
+.slot-balance strong{color:var(--gold);font-size:.9rem;display:block}
+
+.reels-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 10px 0}
+.reels-frame{background:#000;border-radius:16px;border:3px solid rgba(255,255,255,.08);padding:8px;
+  width:100%;box-shadow:inset 0 0 40px rgba(0,0,0,.9),0 0 30px rgba(155,89,255,.15);position:relative}
+.reels-frame-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;padding:0 4px}
+.rft-label{font-size:.6rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.rft-jackpot{font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--gold);letter-spacing:1px}
+.reels-row{display:flex;gap:4px}
+.reel-col{flex:1;overflow:hidden;border-radius:8px;background:linear-gradient(180deg,#0a0015,#050010);
+  border:1px solid rgba(255,255,255,.06);height:220px;position:relative}
+.reel-col::before,.reel-col::after{content:'';position:absolute;left:0;right:0;height:1px;
+  background:rgba(255,255,255,.04);z-index:2;pointer-events:none}
+.reel-col::before{top:33.3%}.reel-col::after{top:66.6%}
+.reel-strip{display:flex;flex-direction:column;will-change:transform}
+.sym-cell{height:73px;display:flex;align-items:center;justify-content:center;
+  font-size:clamp(1.8rem,6vw,2.4rem);flex-shrink:0;border-radius:6px}
+.sym-cell.win-highlight{background:rgba(255,215,0,.15);animation:cellglow .5s ease infinite alternate}
+@keyframes cellglow{from{transform:scale(1)}to{transform:scale(1.06)}}
+.win-lines-overlay{position:absolute;inset:0;pointer-events:none;z-index:5}
+.wline{position:absolute;left:0;right:0;height:3px;border-radius:2px;opacity:0;transition:opacity .2s}
+.wline.active{opacity:1;animation:wpulse 1s ease infinite alternate}
+@keyframes wpulse{from{opacity:1}to{opacity:.25}}
+.wline-1{top:33.33%;transform:translateY(-50%);background:rgba(255,215,0,.8);box-shadow:0 0 8px var(--gold)}
+.wline-2{top:66.66%;transform:translateY(-50%);background:rgba(0,180,255,.8);box-shadow:0 0 8px var(--blue)}
+.wline-3{top:0%;transform:translateY(40%);background:rgba(255,45,120,.8);box-shadow:0 0 8px var(--pink)}
+
+.bottom-panel{background:linear-gradient(180deg,#150030,#0d0020);padding:10px 12px 14px;
+  border-top:1px solid rgba(155,89,255,.2);flex-shrink:0}
+.win-display{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.win-box{text-align:center}
+.wlabel{font-size:.55rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.wval{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--gold);letter-spacing:1px}
+.wval.flash{color:var(--green);filter:drop-shadow(0 0 6px var(--green));animation:numflash .4s ease}
+@keyframes numflash{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.bet-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.bet-chips{display:flex;gap:5px;flex:1;flex-wrap:wrap}
+.chip{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:20px;
+  padding:4px 10px;font-size:.7rem;font-weight:700;cursor:pointer;transition:background .15s,border-color .15s}
+.chip.active{background:rgba(155,89,255,.3);border-color:var(--purple);color:var(--purple)}
+.spin-row{display:flex;gap:8px;align-items:center}
+.max-btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;
+  padding:0 14px;height:52px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.7rem;
+  letter-spacing:1px;text-transform:uppercase;color:var(--text);cursor:pointer;transition:background .15s}
+.max-btn:hover{background:rgba(255,255,255,.14)}
+.spin-btn{flex:1;height:52px;border:none;border-radius:14px;font-family:'Bebas Neue',sans-serif;
+  font-size:1.6rem;letter-spacing:3px;cursor:pointer;position:relative;overflow:hidden;
+  transition:transform .1s,box-shadow .1s}
+.spin-btn:disabled{opacity:.5;cursor:not-allowed}
+.spin-btn:not(:disabled):active{transform:scale(.96)}
+.spin-btn::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,.12);
+  transform:translateX(-110%) skewX(-15deg);transition:transform .4s}
+.spin-btn:not(:disabled):hover::after{transform:translateX(110%) skewX(-15deg)}
+.auto-btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:10px;
+  padding:0 14px;height:52px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.7rem;
+  letter-spacing:1px;text-transform:uppercase;color:var(--text);cursor:pointer;transition:background .15s}
+.auto-btn.on{background:rgba(255,45,120,.2);border-color:var(--pink);color:var(--pink)}
+.win-msg{text-align:center;height:24px;font-weight:800;font-size:.8rem;letter-spacing:2px;
+  text-transform:uppercase;margin-bottom:2px;transition:opacity .3s}
+.win-msg.big{color:var(--gold);filter:drop-shadow(0 0 8px var(--gold))}
+.win-msg.mid{color:var(--green);filter:drop-shadow(0 0 6px var(--green))}
+.win-msg.lose{color:var(--muted);font-weight:400}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;
+  background:linear-gradient(180deg,rgba(13,1,32,0) 0%,rgba(10,0,24,1) 30%);
+  padding:8px 0 12px;display:flex;justify-content:space-around;
+  border-top:1px solid rgba(155,89,255,.15);z-index:20}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;
+  padding:4px 16px;transition:opacity .15s;border:none;background:none}
+.nav-item .nicon{font-size:1.3rem;transition:transform .2s}
+.nav-item .nlabel{font-size:.58rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+.nav-item.active .nicon{transform:scale(1.2);filter:drop-shadow(0 0 6px var(--purple))}
+.nav-item.active .nlabel{color:var(--purple)}
+
+/* MODALS */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;
+  display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:linear-gradient(135deg,#1e0445,#2d0060);border-radius:20px;padding:24px 20px;
+  border:1px solid rgba(155,89,255,.3);max-width:340px;width:90%;text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.8);animation:popIn .3s ease}
+@keyframes popIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.modal h2{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:3px;color:var(--gold)}
+.modal p{font-size:.8rem;color:rgba(255,255,255,.7);margin:.5rem 0 1rem}
+.modal-coins{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--gold);filter:drop-shadow(0 0 12px rgba(255,215,0,.7))}
+.modal-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-weight:900;
+  font-size:.9rem;letter-spacing:1px;border:none;border-radius:12px;padding:12px 32px;
+  cursor:pointer;width:100%;margin-top:10px;text-transform:uppercase}
+
+/* BIG WIN */
+.win-splash{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.7);pointer-events:none}
+.win-splash.show{display:flex;animation:fadeWin .3s ease}
+@keyframes fadeWin{from{opacity:0}to{opacity:1}}
+.win-splash-inner{text-align:center;animation:zoomWin .5s cubic-bezier(.17,.67,.35,1.4)}
+@keyframes zoomWin{from{transform:scale(.3)}to{transform:scale(1)}}
+.win-splash-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,15vw,5rem);
+  letter-spacing:4px;color:var(--gold);filter:drop-shadow(0 0 30px var(--gold))}
+.win-splash-amt{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,12vw,4rem);
+  letter-spacing:2px;color:var(--green);filter:drop-shadow(0 0 20px var(--green))}
+.win-splash-coins{font-size:2rem;letter-spacing:6px}
+.coin-particle{position:fixed;pointer-events:none;z-index:210;font-size:1.5rem;animation:coinFall 1.5s ease-in forwards}
+@keyframes coinFall{0%{transform:translateY(0) rotate(0) scale(1);opacity:1}100%{transform:translateY(250px) rotate(720deg) scale(.5);opacity:0}}
+
+/* FAVORITES */
+.fav-empty{text-align:center;padding:40px 20px;color:var(--muted)}
+.fav-empty .fav-icon{font-size:3rem;margin-bottom:10px}
+.fav-empty p{font-size:.85rem;line-height:1.6}
+
+/* SHOP */
+.shop-banner{background:linear-gradient(135deg,#4a0090,#00408a);border-radius:14px;padding:16px;
+  margin-bottom:14px;border:1px solid rgba(0,180,255,.3);text-align:center}
+.shop-banner .sb-title{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:2px;color:var(--gold)}
+.shop-banner .sb-sub{font-size:.72rem;color:rgba(255,255,255,.6);margin-top:3px}
+.shop-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.shop-item{background:var(--card);border-radius:14px;border:1px solid rgba(155,89,255,.2);
+  padding:14px 10px;text-align:center;cursor:pointer;transition:transform .15s,box-shadow .15s;
+  position:relative;overflow:hidden}
+.shop-item:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.shop-item::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.shop-item.tier1::before{background:linear-gradient(90deg,transparent,#888,transparent)}
+.shop-item.tier2::before{background:linear-gradient(90deg,transparent,var(--blue),transparent)}
+.shop-item.tier3::before{background:linear-gradient(90deg,transparent,var(--purple),transparent)}
+.shop-item.tier4::before{background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.shop-item.best-val{border-color:var(--gold)}
+.shop-item .best-tag{position:absolute;top:8px;right:8px;background:var(--gold);color:#000;
+  font-size:.5rem;font-weight:900;letter-spacing:1px;border-radius:4px;padding:2px 5px;text-transform:uppercase}
+.shop-coins{font-size:1.8rem;margin-bottom:4px}
+.shop-amt{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--gold);letter-spacing:1px}
+.shop-bonus{font-size:.6rem;color:var(--green);font-weight:700;margin:2px 0}
+.shop-price{background:linear-gradient(135deg,var(--purple),#5500BB);border-radius:8px;
+  padding:5px 12px;margin-top:8px;font-weight:800;font-size:.8rem;border:none;color:#fff;
+  cursor:pointer;width:100%;transition:opacity .15s}
+.shop-price:hover{opacity:.85}
+.shop-section-title{font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:14px 0 8px}
+.vip-card{background:linear-gradient(135deg,#3a2000,#6b3d00);border-radius:14px;
+  border:1px solid var(--gold2);padding:16px;display:flex;align-items:center;gap:14px;
+  margin-bottom:10px;cursor:pointer}
+.vip-card .vip-crown{font-size:2.5rem}
+.vip-card .vip-info .vt{font-weight:800;font-size:.9rem;color:var(--gold)}
+.vip-card .vip-info .vs{font-size:.7rem;color:rgba(255,255,255,.6);margin-top:3px;line-height:1.5}
+.vip-card .vip-btn{margin-left:auto;background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#000;font-weight:900;font-size:.7rem;border:none;border-radius:8px;padding:7px 12px;cursor:pointer;white-space:nowrap}
+
+/* PROFILE */
+.profile-hero{background:linear-gradient(135deg,#2d0060,#1a0040);border-radius:16px;
+  padding:20px 16px;border:1px solid rgba(155,89,255,.25);display:flex;align-items:center;
+  gap:16px;margin-bottom:14px}
+.avatar-ring{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--blue));
+  display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0;
+  box-shadow:0 0 16px rgba(155,89,255,.5)}
+.profile-info .pname{font-weight:900;font-size:1.1rem}
+.profile-info .psub{font-size:.7rem;color:var(--muted);margin-top:2px}
+.profile-info .plevel{display:inline-block;margin-top:6px;background:linear-gradient(135deg,var(--purple),#3300aa);
+  border-radius:20px;padding:3px 12px;font-size:.7rem;font-weight:800;letter-spacing:1px}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.stat-box{background:var(--card);border-radius:12px;border:1px solid rgba(155,89,255,.15);padding:12px 8px;text-align:center}
+.stat-val{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--gold);letter-spacing:1px}
+.stat-lbl{font-size:.58rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.achievements-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.ach-item{background:var(--card);border-radius:12px;border:1px solid rgba(155,89,255,.15);
+  padding:12px 14px;display:flex;align-items:center;gap:12px}
+.ach-item.locked{opacity:.45}
+.ach-icon{font-size:1.8rem;flex-shrink:0}
+.ach-info{flex:1}
+.ach-name{font-weight:700;font-size:.82rem}
+.ach-desc{font-size:.65rem;color:var(--muted);margin-top:2px}
+.ach-prog-wrap{background:rgba(0,0,0,.3);border-radius:4px;height:5px;margin-top:5px}
+.ach-prog{height:5px;border-radius:4px;background:linear-gradient(90deg,var(--purple),var(--blue))}
+.ach-badge{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-size:.55rem;
+  font-weight:900;border-radius:4px;padding:2px 6px;white-space:nowrap}
+.settings-list{display:flex;flex-direction:column;gap:6px}
+.setting-row{background:var(--card);border-radius:10px;border:1px solid rgba(155,89,255,.12);
+  padding:12px 14px;display:flex;align-items:center;justify-content:space-between}
+.setting-row .sr-label{font-size:.82rem;font-weight:600}
+.toggle{width:42px;height:24px;background:rgba(255,255,255,.15);border-radius:12px;
+  position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--purple)}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;
+  border-radius:50%;background:#fff;transition:transform .2s}
+.toggle.on::after{transform:translateX(18px)}
+
+/* BONUS SCREEN */
+.bonus-day-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:14px}
+.bonus-day{background:var(--card);border-radius:10px;border:1px solid rgba(155,89,255,.15);padding:6px 4px;text-align:center}
+.bonus-day.claimed{border-color:var(--green);background:rgba(0,212,106,.1)}
+.bonus-day.today{border-color:var(--gold);background:rgba(255,215,0,.1);animation:pulse-gold 2s infinite}
+.bd-day{font-size:.55rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.bd-icon{font-size:1.2rem;margin:3px 0}
+.bd-amt{font-size:.55rem;color:var(--gold);font-weight:700}
+
+/* ── DUEL SCREEN ── */
+.duel-lobby { padding:16px 14px 80px; }
+.duel-hero {
+  background:linear-gradient(135deg,#2a0060,#8b0000);
+  border-radius:18px; padding:20px 16px; text-align:center;
+  border:1px solid rgba(255,45,120,.3); margin-bottom:14px; position:relative; overflow:hidden;
+}
+.duel-hero::before {
+  content:'⚔️'; position:absolute; font-size:8rem; opacity:.05;
+  top:50%; left:50%; transform:translate(-50%,-50%);
+}
+.duel-hero h2 { font-family:'Bebas Neue',sans-serif; font-size:2rem; letter-spacing:4px; color:var(--gold); }
+.duel-hero p  { font-size:.75rem; color:rgba(255,255,255,.65); margin:.4rem 0 1rem; }
+
+.duel-input-row { display:flex; gap:8px; margin-bottom:10px; }
+.duel-input {
+  flex:1; background:rgba(0,0,0,.4); border:1px solid rgba(155,89,255,.4);
+  border-radius:10px; padding:10px 14px; color:#fff; font-family:'Nunito',sans-serif;
+  font-size:.85rem; font-weight:700; outline:none;
+}
+.duel-input::placeholder { color:var(--muted); font-weight:400; }
+.duel-input:focus { border-color:var(--purple); }
+.duel-btn {
+  background:linear-gradient(135deg,var(--purple),#3300aa); border:none; border-radius:10px;
+  color:#fff; font-family:'Nunito',sans-serif; font-weight:800; font-size:.8rem;
+  letter-spacing:1px; padding:0 18px; cursor:pointer; white-space:nowrap;
+  transition:transform .15s, box-shadow .15s;
+}
+.duel-btn:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(155,89,255,.4); }
+.duel-btn.danger { background:linear-gradient(135deg,var(--red),#880000); }
+.duel-btn.gold   { background:linear-gradient(135deg,var(--gold),var(--gold2)); color:#000; }
+
+.duel-status-card {
+  background:var(--card); border-radius:14px; border:1px solid rgba(155,89,255,.2);
+  padding:14px; margin-bottom:12px;
+}
+.duel-status-card .ds-label { font-size:.6rem; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+.duel-room-id { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; letter-spacing:6px; color:var(--gold); }
+.duel-share-hint { font-size:.65rem; color:var(--muted); margin-top:4px; }
+
+.duel-players {
+  display:grid; grid-template-columns:1fr auto 1fr; gap:8px;
+  align-items:center; margin-bottom:12px;
+}
+.duel-player {
+  background:var(--card); border-radius:12px; border:1px solid rgba(155,89,255,.2);
+  padding:12px 8px; text-align:center;
+}
+.duel-player.me   { border-color:var(--purple); }
+.duel-player.them { border-color:var(--pink); }
+.duel-player .dp-avatar { font-size:2rem; margin-bottom:4px; }
+.duel-player .dp-name   { font-size:.72rem; font-weight:800; }
+.duel-player .dp-score  { font-family:'Bebas Neue',sans-serif; font-size:1.8rem; color:var(--gold); line-height:1; }
+.duel-player .dp-status { font-size:.6rem; color:var(--muted); margin-top:2px; }
+.duel-vs { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; color:var(--red); letter-spacing:2px; text-align:center; }
+
+.duel-progress-wrap { background:rgba(0,0,0,.4); border-radius:8px; height:12px; margin-bottom:12px; position:relative; overflow:hidden; }
+.duel-progress-bar {
+  height:12px; border-radius:8px;
+  background:linear-gradient(90deg,var(--purple),var(--pink));
+  transition:width .4s ease;
+}
+.duel-progress-label { font-size:.65rem; color:var(--muted); text-align:center; margin-top:4px; }
+
+.duel-spin-area { display:flex; flex-direction:column; align-items:center; gap:10px; margin-bottom:12px; }
+.duel-reels-mini {
+  display:flex; gap:4px; background:#000; border-radius:12px;
+  padding:8px; border:2px solid rgba(155,89,255,.2); width:100%;
+}
+.duel-reel-mini {
+  flex:1; height:52px; background:rgba(255,255,255,.04); border-radius:6px;
+  display:flex; align-items:center; justify-content:center; font-size:1.6rem;
+  border:1px solid rgba(255,255,255,.06); transition:background .2s;
+}
+.duel-reel-mini.win-glow { background:rgba(255,215,0,.15); }
+
+.duel-spin-btn {
+  width:100%; height:52px; border:none; border-radius:14px;
+  font-family:'Bebas Neue',sans-serif; font-size:1.5rem; letter-spacing:3px;
+  background:linear-gradient(135deg,var(--pink),#880040); color:#fff;
+  cursor:pointer; transition:transform .1s; box-shadow:0 0 20px rgba(255,45,120,.3);
+}
+.duel-spin-btn:disabled { opacity:.4; cursor:not-allowed; }
+.duel-spin-btn:not(:disabled):active { transform:scale(.97); }
+
+.duel-round-info { display:flex; justify-content:space-between; font-size:.7rem; color:var(--muted); margin-bottom:6px; }
+.duel-round-info strong { color:var(--text); }
+
+.duel-log {
+  background:rgba(0,0,0,.3); border-radius:10px; padding:10px;
+  max-height:120px; overflow-y:auto; font-size:.7rem; color:var(--muted);
+}
+.duel-log::-webkit-scrollbar { width:0; }
+.duel-log-entry { padding:3px 0; border-bottom:1px solid rgba(255,255,255,.04); }
+.duel-log-entry:last-child { border-bottom:none; }
+.duel-log-entry.win  { color:var(--green); }
+.duel-log-entry.lose { color:var(--red); }
+.duel-log-entry.info { color:var(--gold); }
+
+.duel-result-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:300;
+  display:none; align-items:center; justify-content:center;
+}
+.duel-result-overlay.show { display:flex; }
+.duel-result-card {
+  background:linear-gradient(135deg,#1e0445,#2d0060); border-radius:20px;
+  padding:30px 24px; text-align:center; border:2px solid rgba(155,89,255,.4);
+  max-width:320px; width:90%; animation:popIn .4s ease;
+}
+.duel-result-card .dr-emoji { font-size:4rem; margin-bottom:8px; }
+.duel-result-card h2 { font-family:'Bebas Neue',sans-serif; font-size:2.2rem; letter-spacing:4px; }
+.duel-result-card.win-card  h2 { color:var(--gold); }
+.duel-result-card.lose-card h2 { color:var(--muted); }
+.duel-result-card.tie-card  h2 { color:var(--blue); }
+.dr-scores { display:flex; justify-content:center; gap:24px; margin:12px 0; }
+.dr-score-box { text-align:center; }
+.dr-score-box .dsb-name { font-size:.65rem; color:var(--muted); }
+.dr-score-box .dsb-val  { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:var(--gold); }
+
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo-sm">🎰 Slotpark</div>
+  <div class="coins-pill"><span>🪙</span><span id="coin-display">10.000</span></div>
+  <div class="xp-area">
+    <div class="xp-label">LEVEL <span id="lv-num">5</span></div>
+    <div class="xp-bar-wrap"><div class="xp-bar" id="xp-bar" style="width:42%"></div></div>
+  </div>
+  <div class="lv-badge" id="lv-badge">5</div>
+</div>
+
+<div class="bonus-row">
+  <button class="bonus-btn ready" onclick="navTo('bonus')"><span>🎁</span> Tages-Bonus</button>
+  <button class="bonus-btn" onclick="openPiggy()"><span>🐽</span> Sparschwein <span id="piggy-pct-btn">42%</span></button>
+  <button class="bonus-btn" onclick="showBonusModal('mystery')"><span>🎩</span> Mystery Bonus</button>
+  <button class="bonus-btn" onclick="showBonusModal('freespins')"><span>🔄</span> Freispiele</button>
+</div>
+
+<!-- LOBBY -->
+<div class="screen active" id="screen-lobby">
+  <div class="lobby">
+    <div class="featured-banner" onclick="openSlot(0)">
+      <h3>Book of Ra™ deluxe</h3>
+      <p>Das legendäre Ägypten-Abenteuer</p>
+      <div class="featured-big-syms">📖 🔱 🦅 🎰</div>
+      <button class="play-now-btn">Jetzt spielen</button>
+    </div>
+    <div class="jackpot-bar">
+      <div class="jk-left">🏆 Jackpot</div>
+      <div class="jk-amount" id="jackpot-ticker">1.234.567</div>
+    </div>
+    <div class="piggy-card" onclick="openPiggy()">
+      <div class="piggy-icon">🐽</div>
+      <div class="piggy-info">
+        <div class="piggy-title">Sparschwein</div>
+        <div class="piggy-sub">Jeder Einsatz füllt dein Sparschwein</div>
+        <div class="piggy-bar-wrap"><div class="piggy-bar" id="piggy-bar" style="width:42%"></div></div>
+        <div class="piggy-pct" id="piggy-pct">42% voll · Noch 58% bis zur Öffnung</div>
+      </div>
+    </div>
+    <div class="section-hd"><h2>🔥 Top Spiele</h2><span class="see-all">Alle ansehen</span></div>
+    <div class="game-grid" id="game-grid"></div>
+    <div class="section-hd" style="margin-top:14px"><h2>⭐ Neu</h2></div>
+    <div class="game-grid" id="game-grid-new"></div>
+  </div>
+</div>
+
+<!-- FAVORITES -->
+<div class="screen" id="screen-fav">
+  <div class="inner-screen">
+    <div class="screen-title">⭐ Favoriten</div>
+    <div id="fav-content"></div>
+  </div>
+</div>
+
+<!-- BONUS -->
+<div class="screen" id="screen-bonus">
+  <div class="inner-screen">
+    <div class="screen-title">🎁 Bonus-Center</div>
+    <div class="section-hd" style="margin-top:0"><h2>📅 Tägliches Login</h2></div>
+    <div class="bonus-day-grid">
+      <div class="bonus-day claimed"><div class="bd-day">Mo</div><div class="bd-icon">🪙</div><div class="bd-amt">500</div></div>
+      <div class="bonus-day claimed"><div class="bd-day">Di</div><div class="bd-icon">🪙</div><div class="bd-amt">750</div></div>
+      <div class="bonus-day today"><div class="bd-day">Mi</div><div class="bd-icon">🎁</div><div class="bd-amt">2.500</div></div>
+      <div class="bonus-day"><div class="bd-day">Do</div><div class="bd-icon">🪙</div><div class="bd-amt">1.500</div></div>
+      <div class="bonus-day"><div class="bd-day">Fr</div><div class="bd-icon">🎰</div><div class="bd-amt">10 FS</div></div>
+      <div class="bonus-day"><div class="bd-day">Sa</div><div class="bd-icon">🪙</div><div class="bd-amt">3.000</div></div>
+      <div class="bonus-day"><div class="bd-day">So</div><div class="bd-icon">👑</div><div class="bd-amt">7.500</div></div>
+    </div>
+    <button class="modal-btn" style="margin-bottom:16px" onclick="collectBonus('daily',2500);navTo('home')">🎁 Heutigen Bonus einsammeln</button>
+    <div class="section-hd"><h2>🔄 Freispiele</h2></div>
+    <div class="piggy-card" style="margin-bottom:10px" onclick="collectBonus('freespins',0);navTo('home')">
+      <div class="piggy-icon">🎰</div>
+      <div class="piggy-info">
+        <div class="piggy-title">10 Freispiele verfügbar</div>
+        <div class="piggy-sub">Book of Ra™ deluxe · Ablauf in 23:45</div>
+        <div class="piggy-bar-wrap" style="margin-top:8px"><div class="piggy-bar" style="width:100%;background:linear-gradient(90deg,var(--purple),var(--blue))"></div></div>
+      </div>
+    </div>
+    <div class="section-hd"><h2>🎩 Mystery Bonus</h2></div>
+    <div class="piggy-card" style="background:linear-gradient(135deg,#2a0050,#1a0030);border-color:rgba(155,89,255,.3)">
+      <div class="piggy-icon">🎩</div>
+      <div class="piggy-info">
+        <div class="piggy-title">Mystery Bonus · Endet in 02:14:33</div>
+        <div class="piggy-sub">Versteckt in: 📖 ⚡ 🍭</div>
+        <div class="piggy-bar-wrap" style="margin-top:8px"><div class="piggy-bar" style="width:65%;background:linear-gradient(90deg,var(--pink),var(--purple))"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SHOP -->
+<div class="screen" id="screen-shop">
+  <div class="inner-screen">
+    <div class="screen-title">🛒 Coin-Shop</div>
+    <div class="shop-banner">
+      <div class="sb-title">🔥 Sonderangebot – Nur heute!</div>
+      <div class="sb-sub">Kaufe Coins und erhalte bis zu 50% Bonus-Coins gratis</div>
+    </div>
+    <div class="shop-grid">
+      <div class="shop-item tier1" onclick="buyCoins(1000)">
+        <div class="shop-coins">🪙</div><div class="shop-amt">1.000</div>
+        <div class="shop-bonus">&nbsp;</div><button class="shop-price">0,99 €</button>
+      </div>
+      <div class="shop-item tier2" onclick="buyCoins(5500)">
+        <div class="shop-coins">🪙🪙</div><div class="shop-amt">5.000</div>
+        <div class="shop-bonus">+500 Bonus-Coins</div><button class="shop-price">3,99 €</button>
+      </div>
+      <div class="shop-item tier3 best-val" onclick="buyCoins(15000)">
+        <div class="best-tag">BEST</div>
+        <div class="shop-coins">🪙🪙🪙</div><div class="shop-amt">12.500</div>
+        <div class="shop-bonus">+2.500 Bonus-Coins</div><button class="shop-price">7,99 €</button>
+      </div>
+      <div class="shop-item tier4" onclick="buyCoins(35000)">
+        <div class="shop-coins">💰</div><div class="shop-amt">25.000</div>
+        <div class="shop-bonus">+10.000 Bonus-Coins</div><button class="shop-price">14,99 €</button>
+      </div>
+    </div>
+    <div class="shop-section-title">👑 VIP-Mitgliedschaft</div>
+    <div class="vip-card">
+      <div class="vip-crown">👑</div>
+      <div class="vip-info">
+        <div class="vt">VIP Club beitreten</div>
+        <div class="vs">Exklusive Slots · Höhere Limits<br>Tägliche VIP-Boni · Kein Warten</div>
+      </div>
+      <button class="vip-btn" onclick="buyCoins(0)">9,99 €/Mo</button>
+    </div>
+    <div class="shop-section-title">🎁 Gratis Coins</div>
+    <div class="piggy-card" style="margin-bottom:0" onclick="collectBonus('daily',1000);navTo('home')">
+      <div class="piggy-icon">🎁</div>
+      <div class="piggy-info">
+        <div class="piggy-title">Tages-Bonus einsammeln → 1.000 Coins</div>
+        <div class="piggy-sub">Komm jeden Tag zurück für größere Boni!</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div class="screen" id="screen-profile">
+  <div class="inner-screen">
+    <div class="screen-title">👤 Mein Profil</div>
+    <div class="profile-hero">
+      <div class="avatar-ring">🎰</div>
+      <div class="profile-info">
+        <div class="pname">Spieler_7742</div>
+        <div class="psub">Mitglied seit Juni 2024 · 🏆 3 Trophäen</div>
+        <div class="plevel">⭐ Level <span id="prof-lv">5</span></div>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-box"><div class="stat-val" id="stat-spins">0</div><div class="stat-lbl">Drehungen</div></div>
+      <div class="stat-box"><div class="stat-val" id="stat-won">0</div><div class="stat-lbl">Gewonnen</div></div>
+      <div class="stat-box"><div class="stat-val" id="stat-bigwins">0</div><div class="stat-lbl">Big Wins</div></div>
+    </div>
+    <div class="section-hd"><h2>🏆 Erfolge</h2></div>
+    <div class="achievements-list">
+      <div class="ach-item">
+        <div class="ach-icon">🎰</div>
+        <div class="ach-info"><div class="ach-name">Erstes Drehen</div><div class="ach-desc">Drehe die Walzen zum ersten Mal</div>
+          <div class="ach-prog-wrap"><div class="ach-prog" style="width:100%"></div></div></div>
+        <div class="ach-badge">✓ Done</div>
+      </div>
+      <div class="ach-item">
+        <div class="ach-icon">💰</div>
+        <div class="ach-info"><div class="ach-name">Großer Gewinner</div><div class="ach-desc">Erreiche einen Big Win</div>
+          <div class="ach-prog-wrap"><div class="ach-prog" id="ach-bigwin-bar" style="width:0%"></div></div></div>
+        <div class="ach-badge" id="ach-bigwin-badge" style="background:var(--muted);color:#fff">0/1</div>
+      </div>
+      <div class="ach-item">
+        <div class="ach-icon">🔄</div>
+        <div class="ach-info"><div class="ach-name">Marathon-Spieler</div><div class="ach-desc">100 Drehungen insgesamt</div>
+          <div class="ach-prog-wrap"><div class="ach-prog" id="ach-spin-bar" style="width:0%"></div></div></div>
+        <div class="ach-badge" id="ach-spin-badge" style="background:var(--muted);color:#fff">0/100</div>
+      </div>
+      <div class="ach-item locked">
+        <div class="ach-icon">👑</div>
+        <div class="ach-info"><div class="ach-name">VIP-Spieler</div><div class="ach-desc">Werde VIP-Mitglied</div>
+          <div class="ach-prog-wrap"><div class="ach-prog" style="width:0%"></div></div></div>
+        <div class="ach-badge" style="background:var(--muted);color:#fff">🔒</div>
+      </div>
+    </div>
+    <div class="section-hd"><h2>⚙️ Einstellungen</h2></div>
+    <div class="settings-list">
+      <div class="setting-row"><span class="sr-label">🔊 Soundeffekte</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+      <div class="setting-row"><span class="sr-label">🎵 Musik</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+      <div class="setting-row"><span class="sr-label">📳 Vibration</span><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+      <div class="setting-row"><span class="sr-label">🔔 Benachrichtigungen</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+      <div class="setting-row"><span class="sr-label">⚡ Schnell-Spin</span><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SLOT SCREEN -->
+<div class="screen" id="screen-slot">
+  <div class="slot-screen">
+    <div class="slot-header">
+      <button class="back-btn" onclick="backToLobby()">◀</button>
+      <div class="slot-title" id="slot-name">Book of Ra</div>
+      <div class="slot-balance"><span class="wlabel">GUTHABEN</span><strong id="slot-bal-display">10.000</strong></div>
+    </div>
+    <div class="reels-area">
+      <div class="reels-frame">
+        <div class="reels-frame-top">
+          <span class="rft-label">5 WALZEN · 9 LINIEN</span>
+          <span class="rft-jackpot" id="slot-jackpot">JACKPOT: 🪙 50.000</span>
+        </div>
+        <div class="reels-row" id="reels-row"></div>
+        <div class="win-lines-overlay">
+          <div class="wline wline-1" id="wl1"></div>
+          <div class="wline wline-2" id="wl2"></div>
+          <div class="wline wline-3" id="wl3"></div>
+        </div>
+      </div>
+      <div class="win-msg" id="win-msg"></div>
+    </div>
+    <div class="bottom-panel">
+      <div class="win-display">
+        <div class="win-box"><div class="wlabel">EINSATZ</div><div class="wval" id="bet-display">50</div></div>
+        <div class="win-box"><div class="wlabel">GEWINN</div><div class="wval" id="win-display">0</div></div>
+        <div class="win-box"><div class="wlabel">LINIEN</div><div class="wval">9</div></div>
+        <div class="win-box"><div class="wlabel">EINSATZ/L.</div><div class="wval" id="bpl-display">5</div></div>
+      </div>
+      <div class="bet-row"><div class="bet-chips" id="bet-chips"></div></div>
+      <div class="spin-row">
+        <button class="max-btn" onclick="setMaxBet()">MAX</button>
+        <button class="spin-btn" id="spin-btn" onclick="doSpin()">DREHEN</button>
+        <button class="auto-btn" id="auto-btn" onclick="toggleAuto()">AUTO</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav" id="bottom-nav">
+  <button class="nav-item active" id="nav-home" onclick="navTo('home')"><span class="nicon">🏠</span><span class="nlabel">Lobby</span></button>
+  <button class="nav-item" id="nav-fav" onclick="navTo('fav')"><span class="nicon">⭐</span><span class="nlabel">Favoriten</span></button>
+  <button class="nav-item" id="nav-bonus" onclick="navTo('bonus')"><span class="nicon">🎁</span><span class="nlabel">Bonus</span></button>
+  <button class="nav-item" id="nav-shop" onclick="navTo('shop')"><span class="nicon">🛒</span><span class="nlabel">Shop</span></button>
+  <button class="nav-item" id="nav-profile" onclick="navTo('profile')"><span class="nicon">👤</span><span class="nlabel">Profil</span></button>
+  <button class="nav-item" id="nav-duel" onclick="navTo('duel')"><span class="nicon">⚔️</span><span class="nlabel">Duell</span></button>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-daily">
+  <div class="modal">
+    <div style="font-size:3rem">🎁</div><h2>Tages-Bonus!</h2>
+    <p>Tag 3 von 7 — komm jeden Tag zurück!</p>
+    <div class="modal-coins">🪙 2.500</div>
+    <button class="modal-btn" onclick="collectBonus('daily',2500)">EINSAMMELN</button>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-piggy">
+  <div class="modal">
+    <div style="font-size:3.5rem">🐽</div><h2>Sparschwein</h2>
+    <p>Dein Sparschwein ist zu <span id="piggy-modal-pct">42</span>% voll. Weiter spielen!</p>
+    <div class="modal-coins" style="font-size:1.5rem;color:var(--muted)">🔒 Noch nicht bereit</div>
+    <button class="modal-btn" style="background:linear-gradient(135deg,var(--pink),#8b003e);color:#fff" onclick="closeModal('piggy')">Schließen</button>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-mystery">
+  <div class="modal">
+    <div style="font-size:3rem">🎩</div><h2>Mystery Bonus</h2>
+    <p>Spiele einen der markierten Slots!</p>
+    <div style="font-size:2rem;margin:.5rem 0">🎰 📖 🦅</div>
+    <button class="modal-btn" onclick="closeModal('mystery')">Los geht's!</button>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-freespins">
+  <div class="modal">
+    <div style="font-size:3rem">🔄</div><h2>10 Freispiele!</h2>
+    <p>Du hast <strong>10 Freispiele</strong> auf Book of Ra™ erhalten!</p>
+    <div class="modal-coins">10 🎰</div>
+    <button class="modal-btn" onclick="collectBonus('freespins',0)">FREISPIELE NUTZEN</button>
+  </div>
+</div>
+
+<!-- BIG WIN -->
+<div class="win-splash" id="win-splash">
+  <div class="win-splash-inner">
+    <div class="win-splash-title" id="ws-title">BIG WIN!</div>
+    <div class="win-splash-coins">🪙🪙🪙</div>
+    <div class="win-splash-amt" id="ws-amt">+1.500</div>
+  </div>
+</div>
+
+<script>
+// ── STATE ──
+let coins = 10000, xp = 420, xpMax = 1000, level = 5;
+let piggyPct = 42, jackpotVal = 1234567;
+let currentMachine = 0, betIdx = 2;
+let spinning = false, autoMode = false, autoInterval = null, freeSpins = 0;
+let totalSpins = 0, totalWonCoins = 0, totalBigWins = 0;
+let favorites = new Set();
+
+// ── MACHINES ──
+const MACHINES = [
+  { name:'Book of Ra™ deluxe', theme:'#4a2800', accent:'#FFD700',
+    spinColor:'linear-gradient(135deg,#c8860a,#7a4a00)', jackpot:50000,
+    symbols:['📖','🔱','🦅','🏺','💀','🌿','🃏'], weights:[5,8,10,13,15,18,22],
+    wild:'📖', scatter:'🔱', bets:[10,25,50,100,250,500],
+    pays:{5:100,4:40,3:15,wild5:500,scatter3:15} },
+  { name:'Sizzling Hot™ deluxe', theme:'#3a0000', accent:'#FF4500',
+    spinColor:'linear-gradient(135deg,#cc2200,#881100)', jackpot:75000,
+    symbols:['🍇','🍋','🍊','🍒','🍉','⭐','7️⃣'], weights:[20,18,16,14,12,10,6],
+    wild:'⭐', scatter:'7️⃣', bets:[10,25,50,100,250,500],
+    pays:{5:80,4:35,3:10,wild5:300,scatter3:10} },
+  { name:'Gates of Olympus™', theme:'#0a1a4a', accent:'#00B4FF',
+    spinColor:'linear-gradient(135deg,#0044cc,#001166)', jackpot:100000,
+    symbols:['⚡','💎','👑','🏛️','🔱','🌩️','⚜️'], weights:[6,9,11,13,15,18,20],
+    wild:'⚡', scatter:'⚜️', bets:[25,50,100,250,500,1000],
+    pays:{5:150,4:60,3:20,wild5:600,scatter3:20} },
+  { name:'Sweet Bonanza™', theme:'#3a0040', accent:'#FF69B4',
+    spinColor:'linear-gradient(135deg,#cc0080,#770040)', jackpot:60000,
+    symbols:['🍭','🍬','🍡','🍓','🫐','🍇','💣'], weights:[8,10,12,14,16,18,8],
+    wild:'💣', scatter:'🍭', bets:[10,25,50,100,250,500],
+    pays:{5:90,4:40,3:12,wild5:400,scatter3:12} },
+  { name:'Wolf Gold™', theme:'#002010', accent:'#39FF14',
+    spinColor:'linear-gradient(135deg,#006622,#003311)', jackpot:80000,
+    symbols:['🐺','🦌','🦅','🌕','💰','🎯','🌟'], weights:[6,9,11,14,16,18,20],
+    wild:'🌕', scatter:'🐺', bets:[25,50,100,250,500,1000],
+    pays:{5:120,4:50,3:18,wild5:500,scatter3:18} },
+  { name:"Lucky Lady's Charm™", theme:'#1a0035', accent:'#FF2D78',
+    spinColor:'linear-gradient(135deg,#cc0060,#770030)', jackpot:45000,
+    symbols:['🍀','💜','🔮','🐞','💍','⭐','🌹'], weights:[8,10,12,14,15,17,20],
+    wild:'🔮', scatter:'🍀', bets:[10,25,50,100,250,500],
+    pays:{5:80,4:30,3:10,wild5:350,scatter3:10} },
+];
+
+const GAME_GRID_DATA = [
+  {idx:0,tag:'hot'},{idx:1,tag:'hot'},{idx:2,tag:'new'},
+  {idx:3,tag:'new'},{idx:4,tag:'vip'},{idx:5,tag:''},
+];
+
+// ── NAVIGATION ──
+const SCREEN_MAP = { home:'screen-lobby', fav:'screen-fav', bonus:'screen-bonus', shop:'screen-shop', profile:'screen-profile', duel:'screen-duel' };
+
+function navTo(tab) {
+  stopAuto();
+  Object.values(SCREEN_MAP).forEach(id => { const el=document.getElementById(id); if(el) el.classList.remove('active'); });
+  document.getElementById('screen-slot').classList.remove('active');
+  document.getElementById('bottom-nav').style.display = 'flex';
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('nav-'+tab)?.classList.add('active');
+  const t = SCREEN_MAP[tab];
+  if(t) document.getElementById(t).classList.add('active');
+  if(tab==='fav') buildFavScreen();
+  if(tab==='profile') updateProfileScreen();
+}
+
+// ── LOBBY ──
+function buildLobby() {
+  const grid = document.getElementById('game-grid');
+  const gridNew = document.getElementById('game-grid-new');
+  grid.innerHTML = ''; gridNew.innerHTML = '';
+  GAME_GRID_DATA.forEach((g,i) => {
+    const m = MACHINES[g.idx];
+    const card = document.createElement('div');
+    card.className = 'game-card';
+    card.onclick = () => openSlot(g.idx);
+    const tagHtml = g.tag ? `<div class="game-tag tag-${g.tag}">${g.tag.toUpperCase()}</div>` : '';
+    const favChar = favorites.has(g.idx) ? '⭐' : '☆';
+    const favOp  = favorites.has(g.idx) ? '1' : '.5';
+    card.innerHTML = `
+      <div class="game-thumb" style="background:linear-gradient(135deg,${m.theme}cc,${m.accent}22)">
+        ${tagHtml}
+        <span class="syms">${m.symbols.slice(0,3).join('')}</span>
+        <div class="fav-star" id="fav-${g.idx}" style="opacity:${favOp}"
+          onclick="event.stopPropagation();toggleFav(${g.idx})">${favChar}</div>
+      </div>
+      <div class="game-info">
+        <div class="game-name">${m.name.replace('™','')}</div>
+        <div class="game-stars">★★★★★</div>
+      </div>`;
+    if(i<3) grid.appendChild(card); else gridNew.appendChild(card);
+  });
+}
+
+function toggleFav(idx) {
+  if(favorites.has(idx)) { favorites.delete(idx); } else { favorites.add(idx); }
+  buildLobby();
+  showToast(favorites.has(idx) ? '⭐ Zu Favoriten hinzugefügt!' : 'Von Favoriten entfernt');
+}
+
+function buildFavScreen() {
+  const el = document.getElementById('fav-content');
+  if(favorites.size === 0) {
+    el.innerHTML = `<div class="fav-empty"><div class="fav-icon">⭐</div>
+      <p>Du hast noch keine Favoriten.<br>Tippe auf ☆ auf einer Spielkarte!</p>
+      <button class="modal-btn" style="margin-top:16px" onclick="navTo('home')">Zur Lobby</button></div>`;
+  } else {
+    el.innerHTML = '<div class="game-grid">' + [...favorites].map(idx => {
+      const m = MACHINES[idx];
+      return `<div class="game-card" onclick="openSlot(${idx})">
+        <div class="game-thumb" style="background:linear-gradient(135deg,${m.theme}cc,${m.accent}22)">
+          <span class="syms">${m.symbols.slice(0,3).join('')}</span>
+        </div>
+        <div class="game-info"><div class="game-name">${m.name.replace('™','')}</div>
+        <div class="game-stars">★★★★★</div></div></div>`;
+    }).join('') + '</div>';
+  }
+}
+
+function updateProfileScreen() {
+  document.getElementById('prof-lv').textContent = level;
+  document.getElementById('stat-spins').textContent = totalSpins.toLocaleString('de-DE');
+  document.getElementById('stat-won').textContent = totalWonCoins.toLocaleString('de-DE');
+  document.getElementById('stat-bigwins').textContent = totalBigWins;
+  document.getElementById('ach-spin-bar').style.width = Math.min(100,totalSpins)+'%';
+  document.getElementById('ach-spin-badge').textContent = totalSpins+'/100';
+  if(totalBigWins>0){
+    document.getElementById('ach-bigwin-bar').style.width='100%';
+    document.getElementById('ach-bigwin-badge').textContent='✓ Done';
+    document.getElementById('ach-bigwin-badge').style.background='linear-gradient(135deg,var(--gold),var(--gold2))';
+    document.getElementById('ach-bigwin-badge').style.color='#000';
+  }
+}
+
+// ── JACKPOT TICKER ──
+function tickJackpot() {
+  jackpotVal += Math.floor(Math.random()*13+3);
+  document.getElementById('jackpot-ticker').textContent = jackpotVal.toLocaleString('de-DE');
+}
+
+// ── OPEN SLOT ──
+function openSlot(mIdx) {
+  currentMachine = mIdx; betIdx = 2;
+  const m = MACHINES[mIdx];
+  document.getElementById('screen-lobby').classList.remove('active');
+  document.getElementById('screen-slot').classList.add('active');
+  document.getElementById('bottom-nav').style.display = 'none';
+  document.getElementById('slot-name').textContent = m.name;
+  document.getElementById('slot-jackpot').textContent = `JACKPOT: 🪙 ${m.jackpot.toLocaleString('de-DE')}`;
+  document.getElementById('spin-btn').style.background = m.spinColor;
+  document.getElementById('spin-btn').style.color = '#fff';
+  document.getElementById('spin-btn').style.boxShadow = `0 0 20px ${m.accent}55`;
+  buildBetChips(m); buildReels(m); updateSlotUI();
+}
+
+function backToLobby() {
+  stopAuto();
+  document.getElementById('screen-slot').classList.remove('active');
+  document.getElementById('screen-lobby').classList.add('active');
+  document.getElementById('bottom-nav').style.display = 'flex';
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('nav-home').classList.add('active');
+}
+
+// ── REELS ──
+const REEL_COUNT=5, ROW_COUNT=3;
+function buildReels(m) {
+  const row = document.getElementById('reels-row'); row.innerHTML='';
+  for(let r=0;r<REEL_COUNT;r++){
+    const col=document.createElement('div'); col.className='reel-col'; col.id=`reel-col-${r}`;
+    const strip=document.createElement('div'); strip.className='reel-strip'; strip.id=`reel-strip-${r}`;
+    for(let s=0;s<ROW_COUNT;s++){
+      const cell=document.createElement('div'); cell.className='sym-cell'; cell.id=`cell-${r}-${s}`;
+      cell.textContent=randSym(m); strip.appendChild(cell);
+    }
+    col.appendChild(strip); row.appendChild(col);
+  }
+}
+function randSym(m){ let t=m.weights.reduce((a,b)=>a+b,0),r=Math.random()*t; for(let i=0;i<m.symbols.length;i++){r-=m.weights[i];if(r<=0)return m.symbols[i];} return m.symbols[m.symbols.length-1]; }
+
+// ── BET ──
+function buildBetChips(m){
+  const w=document.getElementById('bet-chips'); w.innerHTML='';
+  m.bets.forEach((b,i)=>{
+    const c=document.createElement('div'); c.className='chip'+(i===betIdx?' active':'');
+    c.textContent=b.toLocaleString('de-DE');
+    c.onclick=()=>{betIdx=i;buildBetChips(m);updateSlotUI();}; w.appendChild(c);
+  });
+}
+function setMaxBet(){ const m=MACHINES[currentMachine]; betIdx=m.bets.length-1; buildBetChips(m); updateSlotUI(); }
+function updateSlotUI(){
+  const m=MACHINES[currentMachine], bet=m.bets[betIdx];
+  document.getElementById('bet-display').textContent=bet.toLocaleString('de-DE');
+  document.getElementById('bpl-display').textContent=Math.round(bet/9).toLocaleString('de-DE');
+  document.getElementById('slot-bal-display').textContent=coins.toLocaleString('de-DE');
+  document.getElementById('coin-display').textContent=coins.toLocaleString('de-DE');
+}
+
+// ── SPIN ──
+function doSpin(){
+  if(spinning) return;
+  const m=MACHINES[currentMachine], bet=m.bets[betIdx];
+  if(coins<bet&&freeSpins<=0){ showMsg('❌ Nicht genug Coins!','lose'); return; }
+  if(freeSpins>0) freeSpins--; else { coins-=bet; addPiggy(bet); }
+  totalSpins++; spinning=true;
+  document.getElementById('spin-btn').disabled=true;
+  clearWinLines(); showMsg('',''); document.getElementById('win-display').textContent='0';
+  updateSlotUI();
+  const grid=[];
+  for(let c=0;c<REEL_COUNT;c++){ grid[c]=[]; for(let r=0;r<ROW_COUNT;r++) grid[c][r]=randSym(m); }
+  let done=0;
+  for(let c=0;c<REEL_COUNT;c++){
+    animateReel(c,grid[c],m,c*120+300,()=>{ done++; if(done===REEL_COUNT){ spinning=false; document.getElementById('spin-btn').disabled=false; evaluate(grid,m,bet); } });
+  }
+}
+function animateReel(col,finalSyms,m,dur,cb){
+  const strip=document.getElementById(`reel-strip-${col}`);
+  const cells=strip.querySelectorAll('.sym-cell');
+  const ms=70, ticks=Math.ceil(dur/ms); let t=0;
+  const iv=setInterval(()=>{ cells.forEach(c=>c.textContent=randSym(m)); t++;
+    if(t>=ticks){ clearInterval(iv); cells.forEach((c,i)=>c.textContent=finalSyms[i]); cb(); }
+  },ms);
+}
+
+// ── EVALUATE ──
+function evaluate(grid,m,bet){
+  let winAmt=0;
+  const row1=grid.map(col=>col[1]), row0=grid.map(col=>col[0]), row2=grid.map(col=>col[2]);
+  const r1=checkRow(row1,m,bet); winAmt+=r1.amt; if(r1.line) document.getElementById('wl1').classList.add('active');
+  const r0=checkRow(row0,m,bet); if(r0.amt){ winAmt+=r0.amt; document.getElementById('wl3').classList.add('active'); }
+  const r2=checkRow(row2,m,bet); if(r2.amt){ winAmt+=r2.amt; document.getElementById('wl2').classList.add('active'); }
+  let scatterCount=0;
+  for(let c=0;c<REEL_COUNT;c++) for(let r=0;r<ROW_COUNT;r++) if(grid[c][r]===m.scatter) scatterCount++;
+  if(scatterCount>=3){ winAmt+=Math.round(bet*m.pays.scatter3/10); freeSpins+=10; }
+  if(winAmt>0){
+    coins+=winAmt; totalWonCoins+=winAmt; addXP(Math.ceil(winAmt/10));
+    document.getElementById('win-display').textContent=winAmt.toLocaleString('de-DE');
+    if(winAmt>=bet*10){ totalBigWins++; triggerBigWin('BIG WIN!',winAmt); }
+    else if(winAmt>=bet*5){ totalBigWins++; triggerBigWin('SUPER WIN!',winAmt); }
+    else { showMsg(`✨ Gewonnen! +${winAmt.toLocaleString('de-DE')} Coins`,'mid'); spawnCoins(4); }
+    highlightWinCells(grid,m);
+  } else { showMsg('Kein Gewinn · Nochmal versuchen!','lose'); }
+  updateSlotUI();
+}
+function checkRow(row,m,bet){
+  const wild=m.wild;
+  const base=row[0]===wild?(row.find(s=>s!==wild)||wild):row[0];
+  let count=0;
+  for(let i=0;i<row.length;i++){ if(row[i]===base||row[i]===wild) count++; else break; }
+  let pays=0;
+  if(count>=3){ const mult=count===5?(base===wild?m.pays.wild5:m.pays[5]):count===4?m.pays[4]:m.pays[3]; pays=Math.round(bet*mult/10); }
+  return{amt:pays,line:count>=3};
+}
+function highlightWinCells(grid,m){
+  for(let c=0;c<REEL_COUNT;c++) for(let r=0;r<ROW_COUNT;r++){
+    const cell=document.getElementById(`cell-${c}-${r}`);
+    if(cell&&(grid[c][r]===grid[0][r]||grid[c][r]===m.wild||grid[0][r]===m.wild)){
+      cell.classList.add('win-highlight'); setTimeout(()=>cell.classList.remove('win-highlight'),1800);
+    }
+  }
+}
+function clearWinLines(){ ['wl1','wl2','wl3'].forEach(id=>document.getElementById(id).classList.remove('active')); }
+
+// ── AUTO SPIN ──
+function toggleAuto(){
+  autoMode=!autoMode;
+  const btn=document.getElementById('auto-btn');
+  btn.classList.toggle('on',autoMode); btn.textContent=autoMode?'STOP':'AUTO';
+  if(autoMode) autoInterval=setInterval(()=>{if(!spinning)doSpin();},1800); else stopAuto();
+}
+function stopAuto(){ autoMode=false; clearInterval(autoInterval); const b=document.getElementById('auto-btn'); if(b){b.classList.remove('on');b.textContent='AUTO';} }
+
+// ── PIGGY & XP ──
+function addPiggy(bet){
+  piggyPct=Math.min(100,piggyPct+Math.ceil(bet/500));
+  document.getElementById('piggy-bar').style.width=piggyPct+'%';
+  document.getElementById('piggy-pct').textContent=`${piggyPct}% voll · Noch ${100-piggyPct}% bis zur Öffnung`;
+  document.getElementById('piggy-pct-btn').textContent=piggyPct+'%';
+  document.getElementById('piggy-modal-pct').textContent=piggyPct;
+  if(piggyPct>=100){ piggyPct=0; coins+=5000; updateSlotUI(); spawnCoins(12); showToast('🐽 Sparschwein gebrochen! +5.000 Coins!'); }
+}
+function addXP(amt){ xp=Math.min(xpMax,xp+amt); if(xp>=xpMax){xp=0;level++;xpMax=Math.round(xpMax*1.3);} document.getElementById('xp-bar').style.width=(xp/xpMax*100)+'%'; document.getElementById('lv-num').textContent=level; document.getElementById('lv-badge').textContent=level; }
+
+// ── WIN SPLASH ──
+function triggerBigWin(title,amt){
+  const s=document.getElementById('win-splash');
+  document.getElementById('ws-title').textContent=title;
+  document.getElementById('ws-amt').textContent='+'+amt.toLocaleString('de-DE');
+  s.classList.add('show'); spawnCoins(16); setTimeout(()=>s.classList.remove('show'),2000);
+  showMsg(`🎉 ${title} +${amt.toLocaleString('de-DE')} Coins`,'big');
+}
+function spawnCoins(n){ for(let i=0;i<n;i++){ const c=document.createElement('div'); c.className='coin-particle'; c.textContent='🪙'; c.style.left=Math.random()*85+5+'vw'; c.style.top=Math.random()*40+10+'vh'; c.style.animationDelay=Math.random()*.4+'s'; document.body.appendChild(c); setTimeout(()=>c.remove(),2000); } }
+
+// ── MODALS ──
+function claimDaily(){ document.getElementById('modal-daily').classList.add('open'); }
+function openPiggy(){ document.getElementById('modal-piggy').classList.add('open'); }
+function showBonusModal(t){ document.getElementById('modal-'+t).classList.add('open'); }
+function closeModal(t){ document.getElementById('modal-'+t).classList.remove('open'); }
+function collectBonus(type,amt){
+  if(amt>0){ coins+=amt; }
+  if(type==='freespins') freeSpins+=10;
+  closeModal(type==='daily'?'daily':type==='freespins'?'freespins':'daily');
+  updateSlotUI(); if(amt>0) spawnCoins(8);
+}
+document.querySelectorAll('.modal-overlay').forEach(ov=>ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('open');}));
+
+// ── SHOP ──
+function buyCoins(amt){
+  if(amt===0){ showToast('👑 VIP wäre in der echten App verfügbar!'); return; }
+  coins+=amt; updateSlotUI(); spawnCoins(10);
+  showToast('🪙 +'+amt.toLocaleString('de-DE')+' Coins gutgeschrieben!');
+}
+
+// ── TOAST ──
+function showToast(msg){
+  const t=document.createElement('div');
+  t.style.cssText='position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(0,212,106,.95);color:#fff;font-weight:800;font-size:.78rem;padding:10px 20px;border-radius:20px;z-index:500;white-space:nowrap;letter-spacing:1px;box-shadow:0 4px 20px rgba(0,0,0,.5)';
+  t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2200);
+}
+function showMsg(txt,cls){ const e=document.getElementById('win-msg'); e.textContent=txt; e.className='win-msg '+cls; }
+
+
+// ════════════════════════════════════════════════
+// DUELL-SYSTEM  (Firebase Realtime Database)
+// ════════════════════════════════════════════════
+
+// Firebase config – free public demo project (read/write open, auto-cleanup after 10min via rules)
+const FB_URL = 'https://slotpark-duel-default-rtdb.firebaseio.com';
+
+// ── Duel state ──
+let duelRoom    = null;   // room code
+let duelRole    = null;   // 'host' | 'guest'
+let duelMyName  = '';
+let duelRound   = 1;
+let duelMyScore = 0;
+let duelTheirScore = 0;
+let duelBet     = 500;
+let duelSpun    = false;
+let duelPollInterval = null;
+const DUEL_ROUNDS = 5;
+
+const DUEL_SYMBOLS = ['🍒','🍋','🍊','🍇','⭐','💎','7️⃣'];
+
+// ── Helpers ──
+function genRoomCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+}
+
+async function fbSet(path, data) {
+  try {
+    await fetch(`${FB_URL}/${path}.json`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+  } catch(e) { console.warn('fbSet error', e); }
+}
+
+async function fbPatch(path, data) {
+  try {
+    await fetch(`${FB_URL}/${path}.json`, {
+      method: 'PATCH',
+      body: JSON.stringify(data)
+    });
+  } catch(e) { console.warn('fbPatch error', e); }
+}
+
+async function fbGet(path) {
+  try {
+    const r = await fetch(`${FB_URL}/${path}.json`);
+    return await r.json();
+  } catch(e) { return null; }
+}
+
+async function fbDelete(path) {
+  try {
+    await fetch(`${FB_URL}/${path}.json`, { method: 'DELETE' });
+  } catch(e) {}
+}
+
+// ── CREATE ROOM ──
+async function duelCreate() {
+  const nameEl = document.getElementById('duel-myname');
+  const betEl  = document.getElementById('duel-bet-create');
+  duelMyName = (nameEl.value.trim() || 'Spieler_' + Math.floor(Math.random()*9999));
+  duelBet    = Math.max(50, Math.min(10000, parseInt(betEl.value) || 500));
+
+  if (coins < duelBet) { showToast('❌ Nicht genug Coins für diesen Einsatz!'); return; }
+
+  const code = genRoomCode();
+  duelRoom = code;
+  duelRole = 'host';
+  duelRound = 1; duelMyScore = 0; duelTheirScore = 0; duelSpun = false;
+
+  const roomData = {
+    bet: duelBet,
+    round: 1,
+    status: 'waiting',
+    host: { name: duelMyName, score: 0, spinResult: null, ready: true },
+    guest: null,
+    created: Date.now()
+  };
+
+  showToast('📡 Erstelle Raum...');
+  await fbSet(`rooms/${code}`, roomData);
+  duelShowActive(code);
+  duelStartPolling();
+}
+
+// ── JOIN ROOM ──
+async function duelJoin() {
+  const nameEl = document.getElementById('duel-myname');
+  const codeEl = document.getElementById('duel-join-code');
+  duelMyName = (nameEl.value.trim() || 'Gast_' + Math.floor(Math.random()*9999));
+  const code = codeEl.value.trim().toUpperCase();
+
+  if (code.length !== 6) { showToast('❌ Bitte 6-stelligen Code eingeben!'); return; }
+
+  showToast('📡 Verbinde...');
+  const room = await fbGet(`rooms/${code}`);
+
+  if (!room) { showToast('❌ Raum nicht gefunden! Code prüfen.'); return; }
+  if (room.status !== 'waiting') { showToast('❌ Duell bereits gestartet!'); return; }
+
+  duelBet = room.bet || 500;
+  if (coins < duelBet) { showToast('❌ Nicht genug Coins für diesen Einsatz!'); return; }
+
+  duelRoom = code; duelRole = 'guest';
+  duelRound = 1; duelMyScore = 0; duelTheirScore = 0; duelSpun = false;
+
+  await fbPatch(`rooms/${code}`, {
+    status: 'active',
+    guest: { name: duelMyName, score: 0, spinResult: null, ready: true }
+  });
+
+  duelShowActive(code);
+  duelStartPolling();
+}
+
+// ── SHOW ACTIVE VIEW ──
+function duelShowActive(code) {
+  document.getElementById('duel-lobby-view').style.display = 'none';
+  document.getElementById('duel-active-view').style.display = 'block';
+  document.getElementById('duel-room-display').textContent = code;
+  document.getElementById('duel-share-hint').textContent =
+    duelRole === 'host' ? '⏳ Warte auf Mitspieler...' : '✅ Verbunden!';
+  document.getElementById('dp-my-name').textContent = duelMyName;
+  document.getElementById('duel-bet-display').textContent = duelBet.toLocaleString('de-DE');
+  document.getElementById('duel-my-coins').textContent = coins.toLocaleString('de-DE');
+  duelUpdateUI();
+}
+
+// ── POLLING (check Firebase every 1.5s) ──
+function duelStartPolling() {
+  clearInterval(duelPollInterval);
+  duelPollInterval = setInterval(duelPoll, 1500);
+}
+
+async function duelPoll() {
+  if (!duelRoom) return;
+  const room = await fbGet(`rooms/${duelRoom}`);
+  if (!room) { duelLeave(); return; }
+
+  // Update opponent info
+  const myKey    = duelRole === 'host' ? 'host' : 'guest';
+  const theirKey = duelRole === 'host' ? 'guest' : 'host';
+  const them = room[theirKey];
+
+  if (them) {
+    document.getElementById('dp-their-name').textContent  = them.name || '?';
+    document.getElementById('dp-their-score').textContent = (them.score || 0).toLocaleString('de-DE');
+    document.getElementById('dp-their-status').textContent = them.spinResult !== null ? '✅ Gedreht' : '⏳ Dreht...';
+    document.getElementById('duel-share-hint').textContent = '✅ Verbunden!';
+  }
+
+  // Update round from server
+  if (room.round) {
+    duelRound = room.round;
+    duelUpdateUI();
+  }
+
+  // Check if both spun this round
+  const me = room[myKey];
+  if (me && me.spinResult !== null && them && them.spinResult !== null) {
+    // Both spun — resolve round
+    const myWin   = me.spinResult;
+    const theirWin = them.spinResult;
+    duelMyScore    = room[myKey].score    || 0;
+    duelTheirScore = room[theirKey].score || 0;
+
+    document.getElementById('dp-my-score').textContent    = duelMyScore.toLocaleString('de-DE');
+    document.getElementById('dp-their-score').textContent = duelTheirScore.toLocaleString('de-DE');
+
+    // Advance round if host
+    if (duelRole === 'host' && room.round === duelRound && duelSpun) {
+      if (duelRound >= DUEL_ROUNDS) {
+        // Game over
+        await fbPatch(`rooms/${duelRoom}`, { status: 'done' });
+        clearInterval(duelPollInterval);
+        setTimeout(() => duelShowResult(), 500);
+      } else {
+        // Next round
+        const nextRound = duelRound + 1;
+        await fbPatch(`rooms/${duelRoom}`, {
+          round: nextRound,
+          [`host/spinResult`]: null,
+          [`guest/spinResult`]: null
+        });
+      }
+    }
+
+    // Reset local spun flag when round advances
+    if (room.round > duelRound || room.status === 'done') {
+      duelSpun = false;
+      document.getElementById('duel-spin-btn').disabled = false;
+      if (room.status === 'done' && duelRole !== 'host') {
+        setTimeout(() => duelShowResult(), 500);
+      }
+    }
+  }
+}
+
+// ── SPIN ──
+async function duelSpin() {
+  if (duelSpun) return;
+  if (coins < duelBet) { showToast('❌ Nicht genug Coins!'); return; }
+
+  const room = await fbGet(`rooms/${duelRoom}`);
+  const theirKey = duelRole === 'host' ? 'guest' : 'host';
+  if (!room || !room[theirKey]) { showToast('⏳ Warte noch auf Mitspieler...'); return; }
+
+  coins -= duelBet;
+  duelSpun = true;
+  document.getElementById('duel-spin-btn').disabled = true;
+  document.getElementById('duel-my-coins').textContent = coins.toLocaleString('de-DE');
+  updateSlotUI();
+
+  // Animate reels
+  let ticks = 0;
+  const syms = ['🍒','🍋','🍊','🍇','⭐','💎','7️⃣'];
+  const iv = setInterval(() => {
+    for (let i = 0; i < 3; i++) {
+      document.getElementById('dr'+i).textContent = syms[Math.floor(Math.random()*syms.length)];
+    }
+    ticks++;
+    if (ticks > 14) {
+      clearInterval(iv);
+      // Final symbols
+      const result = [
+        syms[Math.floor(Math.random()*syms.length)],
+        syms[Math.floor(Math.random()*syms.length)],
+        syms[Math.floor(Math.random()*syms.length)],
+      ];
+      result.forEach((s,i) => document.getElementById('dr'+i).textContent = s);
+
+      // Calculate win
+      let winAmt = 0;
+      if (result[0]===result[1]&&result[1]===result[2]) {
+        const mults = {'💎':20,'⭐':15,'7️⃣':12,'🍇':8,'🍊':6,'🍋':4,'🍒':3};
+        winAmt = Math.round(duelBet * (mults[result[0]]||3));
+        result.forEach((_,i) => document.getElementById('dr'+i).classList.add('win-glow'));
+        setTimeout(()=>result.forEach((_,i)=>document.getElementById('dr'+i).classList.remove('win-glow')),1200);
+      } else if (result[0]===result[1]||result[1]===result[2]||result[0]===result[2]) {
+        winAmt = Math.round(duelBet * 1.5);
+      }
+
+      coins += winAmt;
+      duelMyScore += winAmt;
+      updateSlotUI();
+      document.getElementById('duel-my-coins').textContent = coins.toLocaleString('de-DE');
+      document.getElementById('dp-my-score').textContent   = duelMyScore.toLocaleString('de-DE');
+      document.getElementById('dp-my-status').textContent  = '✅ Gedreht';
+
+      // Log entry
+      const msg = winAmt >= duelBet*5 ? `🎉 JACKPOT! +${winAmt.toLocaleString('de-DE')} Coins!`
+                : winAmt > 0 ? `✨ Runde ${duelRound}: +${winAmt.toLocaleString('de-DE')} Coins`
+                : `😔 Runde ${duelRound}: Kein Gewinn`;
+      duelLog(msg, winAmt>0?'win':'lose');
+
+      // Push to Firebase
+      const myKey = duelRole === 'host' ? 'host' : 'guest';
+      fbPatch(`rooms/${duelRoom}`, {
+        [`${myKey}/spinResult`]: winAmt,
+        [`${myKey}/score`]: duelMyScore,
+        [`${myKey}/lastSyms`]: result.join('')
+      });
+    }
+  }, 80);
+}
+
+// ── UI HELPERS ──
+function duelUpdateUI() {
+  document.getElementById('duel-round').textContent = Math.min(duelRound, DUEL_ROUNDS);
+  document.getElementById('duel-progress-bar').style.width = (duelRound / DUEL_ROUNDS * 100) + '%';
+  document.getElementById('duel-progress-label').textContent = `Runde ${Math.min(duelRound,DUEL_ROUNDS)} von ${DUEL_ROUNDS}`;
+  document.getElementById('dp-my-status').textContent = duelSpun ? '✅ Gedreht' : '🎰 Dein Zug!';
+}
+
+function duelLog(msg, cls='info') {
+  const log = document.getElementById('duel-log');
+  const entry = document.createElement('div');
+  entry.className = 'duel-log-entry ' + cls;
+  entry.textContent = msg;
+  log.insertBefore(entry, log.firstChild);
+}
+
+function duelCopyCode() {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(duelRoom).then(() => showToast('📋 Code kopiert: ' + duelRoom));
+  } else {
+    showToast('Code: ' + duelRoom);
+  }
+}
+
+// ── RESULT ──
+function duelShowResult() {
+  clearInterval(duelPollInterval);
+  const overlay = document.getElementById('duel-result-overlay');
+  const card    = document.getElementById('duel-result-card');
+  document.getElementById('dr-my-name2').textContent    = duelMyName;
+  document.getElementById('dr-their-name2').textContent = document.getElementById('dp-their-name').textContent;
+  document.getElementById('dr-my-final').textContent    = duelMyScore.toLocaleString('de-DE');
+  document.getElementById('dr-their-final').textContent = duelTheirScore.toLocaleString('de-DE');
+
+  let emoji, title, rewardText, cardClass;
+  if (duelMyScore > duelTheirScore) {
+    emoji='🏆'; title='GEWONNEN!'; cardClass='win-card';
+    const reward = Math.round(duelBet * DUEL_ROUNDS * 0.2);
+    coins += reward;
+    rewardText = `🎉 +${reward.toLocaleString('de-DE')} Bonus-Coins für den Sieg!`;
+    spawnCoins(14); updateSlotUI();
+  } else if (duelMyScore < duelTheirScore) {
+    emoji='😔'; title='VERLOREN!'; cardClass='lose-card';
+    rewardText = 'Besseres Glück beim nächsten Mal!';
+  } else {
+    emoji='🤝'; title='UNENTSCHIEDEN!'; cardClass='tie-card';
+    rewardText = 'Gleich stark — Remis!';
+  }
+  document.getElementById('dr-emoji').textContent = emoji;
+  document.getElementById('dr-title').textContent = title;
+  document.getElementById('dr-reward-text').textContent = rewardText;
+  card.className = 'duel-result-card ' + cardClass;
+  overlay.classList.add('show');
+}
+
+// ── LEAVE / RESET ──
+async function duelLeave() {
+  clearInterval(duelPollInterval);
+  if (duelRoom) await fbDelete(`rooms/${duelRoom}`);
+  duelReset();
+}
+
+function duelReset() {
+  clearInterval(duelPollInterval);
+  duelRoom=null; duelRole=null; duelSpun=false; duelRound=1;
+  duelMyScore=0; duelTheirScore=0;
+  document.getElementById('duel-result-overlay').classList.remove('show');
+  document.getElementById('duel-lobby-view').style.display = 'block';
+  document.getElementById('duel-active-view').style.display = 'none';
+  document.getElementById('duel-log').innerHTML = '<div class="duel-log-entry info">⚔️ Erstelle oder tritt einem Duell bei!</div>';
+  // Reset reels
+  ['dr0','dr1','dr2'].forEach(id => document.getElementById(id).textContent = '🎰');
+  document.getElementById('duel-spin-btn').disabled = false;
+  navTo('duel');
+}
+// ────────────────────────────────────────────────
+
+// ── INIT ──
+buildLobby();
+setInterval(tickJackpot,800);
+updateSlotUI();
+</script>
+
+<!-- DUEL SCREEN -->
+<div class="screen" id="screen-duel">
+  <div class="duel-lobby" id="duel-lobby-view">
+    <div class="duel-hero">
+      <h2>⚔️ Duell-Modus</h2>
+      <p>Spiele gegen einen Freund — wer sammelt in 5 Runden mehr Coins?</p>
+    </div>
+
+    <!-- Dein Name -->
+    <div class="duel-status-card">
+      <div class="ds-label">Dein Spielername</div>
+      <div class="duel-input-row">
+        <input class="duel-input" id="duel-myname" placeholder="z.B. König_Slot" maxlength="16" value="">
+      </div>
+    </div>
+
+    <!-- Raum erstellen -->
+    <div class="duel-status-card">
+      <div class="ds-label">Neues Duell erstellen</div>
+      <p style="font-size:.7rem;color:var(--muted);margin-bottom:8px">Erstelle einen Raum und schick den Code an deinen Freund.</p>
+      <div class="duel-input-row">
+        <input class="duel-input" id="duel-bet-create" placeholder="Einsatz (z.B. 500)" value="500" maxlength="6" style="max-width:130px">
+        <button class="duel-btn gold" onclick="duelCreate()" style="height:42px">RAUM ERSTELLEN</button>
+      </div>
+    </div>
+
+    <!-- Raum beitreten -->
+    <div class="duel-status-card">
+      <div class="ds-label">Bestehendem Duell beitreten</div>
+      <p style="font-size:.7rem;color:var(--muted);margin-bottom:8px">Gib den 6-stelligen Code deines Freundes ein.</p>
+      <div class="duel-input-row">
+        <input class="duel-input" id="duel-join-code" placeholder="z.B. AB12CD" maxlength="6" style="text-transform:uppercase">
+        <button class="duel-btn" onclick="duelJoin()" style="height:42px">BEITRETEN</button>
+      </div>
+    </div>
+
+    <div style="font-size:.68rem;color:var(--muted);text-align:center;margin-top:6px;line-height:1.6">
+      ⚠️ Dein Freund braucht denselben Link. Der Code ist 10 Minuten gültig.
+    </div>
+  </div>
+
+  <!-- ACTIVE DUEL VIEW -->
+  <div class="duel-lobby" id="duel-active-view" style="display:none">
+
+    <div class="duel-status-card" style="text-align:center;margin-bottom:10px">
+      <div class="ds-label">Raum-Code · Teile ihn mit deinem Freund</div>
+      <div class="duel-room-id" id="duel-room-display">——</div>
+      <div class="duel-share-hint" id="duel-share-hint">Warte auf Mitspieler...</div>
+      <button class="duel-btn" style="margin-top:8px;height:34px;font-size:.7rem" onclick="duelCopyCode()">📋 Code kopieren</button>
+    </div>
+
+    <div class="duel-players">
+      <div class="duel-player me">
+        <div class="dp-avatar">🎰</div>
+        <div class="dp-name" id="dp-my-name">Ich</div>
+        <div class="dp-score" id="dp-my-score">0</div>
+        <div class="dp-status" id="dp-my-status">Bereit</div>
+      </div>
+      <div class="duel-vs">VS</div>
+      <div class="duel-player them">
+        <div class="dp-avatar">👤</div>
+        <div class="dp-name" id="dp-their-name">Warte...</div>
+        <div class="dp-score" id="dp-their-score">0</div>
+        <div class="dp-status" id="dp-their-status">Verbindet...</div>
+      </div>
+    </div>
+
+    <div class="duel-round-info">
+      <span>Runde <strong id="duel-round">1</strong> / 5</span>
+      <span>Einsatz: 🪙 <strong id="duel-bet-display">500</strong></span>
+      <span>Mein Coins: 🪙 <strong id="duel-my-coins">—</strong></span>
+    </div>
+
+    <div class="duel-progress-wrap">
+      <div class="duel-progress-bar" id="duel-progress-bar" style="width:20%"></div>
+    </div>
+    <div class="duel-progress-label" id="duel-progress-label">Runde 1 von 5</div>
+
+    <div class="duel-spin-area">
+      <div class="duel-reels-mini" id="duel-reels">
+        <div class="duel-reel-mini" id="dr0">🎰</div>
+        <div class="duel-reel-mini" id="dr1">🎰</div>
+        <div class="duel-reel-mini" id="dr2">🎰</div>
+      </div>
+      <button class="duel-spin-btn" id="duel-spin-btn" onclick="duelSpin()">⚔️ DREHEN</button>
+    </div>
+
+    <div class="duel-log" id="duel-log">
+      <div class="duel-log-entry info">⚔️ Duell gestartet! Viel Glück!</div>
+    </div>
+
+    <div style="margin-top:12px">
+      <button class="duel-btn danger" style="width:100%;height:38px;font-size:.75rem" onclick="duelLeave()">Duell verlassen</button>
+    </div>
+  </div>
+</div>
+
+<!-- DUEL RESULT OVERLAY -->
+<div class="duel-result-overlay" id="duel-result-overlay">
+  <div class="duel-result-card" id="duel-result-card">
+    <div class="dr-emoji" id="dr-emoji">🏆</div>
+    <h2 id="dr-title">GEWONNEN!</h2>
+    <div class="dr-scores">
+      <div class="dr-score-box"><div class="dsb-name" id="dr-my-name2">Ich</div><div class="dsb-val" id="dr-my-final">0</div></div>
+      <div class="duel-vs" style="align-self:center">VS</div>
+      <div class="dr-score-box"><div class="dsb-name" id="dr-their-name2">Gegner</div><div class="dsb-val" id="dr-their-final">0</div></div>
+    </div>
+    <div id="dr-reward-text" style="font-size:.8rem;color:var(--gold);margin:8px 0"></div>
+    <button class="modal-btn" onclick="duelReset()">Zurück zur Lobby</button>
+  </div>
+</div>
+
+</body>
+</html>
